@@ -1,4 +1,3 @@
-[![Build Status](https://travis-ci.org/GolubDobra/lab09.svg?branch=master)](https://travis-ci.org/GolubDobra/lab09)
 ## Laboratory work IX
 
 Данная лабораторная работа посвещена изучению процесса создания артефактов на примере **Github Release**
