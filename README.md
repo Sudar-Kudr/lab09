@@ -1,200 +1,205 @@
 [![Build Status](https://travis-ci.org/GolubDobra/lab09.svg?branch=master)](https://travis-ci.org/GolubDobra/lab09)
-## Laboratory work VIII
+## Laboratory work IX
 
+Данная лабораторная работа посвещена изучению процесса создания артефактов на примере **Github Release**
 
-Данная лабораторная работа посвещена изучению средств пакетирования на примере **CPack**
-
-```ShellSession
-$ open https://cmake.org/Wiki/CMake:CPackPackageGenerators
+```sh
+$ open https://help.github.com/articles/creating-releases/
 ```
 
 ## Tasks
 
-- [x] 1. Создать публичный репозиторий с названием **lab09** на сервисе **GitHub**
-- [x] 2. Выполнить инструкцию учебного материала
-- [x] 3. Ознакомиться со ссылками учебного материала
-- [x] 4. Составить отчет и отправить ссылку личным сообщением в **Slack**
+- [ok] 1. Создать публичный репозиторий с названием **lab09** на сервисе **GitHub**
+- [ok] 2. Ознакомиться со ссылками учебного материала
+- [ok] 3. Получить токен для доступа к репозиториям сервиса **GitHub**
+- [ok] 4. Выполнить инструкцию учебного материала
+- [ok] 5. Составить отчет и отправить ссылку личным сообщением в **Slack**
 
 ## Tutorial
 
-#### Делаем первоначальные настройки
-```ShellSession
-$ export GITHUB_USERNAME=GolubDobra # Выставляем переменную окружения
-$ export GITHUB_EMAIL=11198lera@mail.ru # Выставляем переменную окружения
-$ alias edit=vi          # Команда edit присваиваем значение команды vi
-$ alias gsed=sed         # for *-nix system, так же присваиваем команде gstd команду sed
+```sh
+$ export GITHUB_TOKEN=<полученный_токен>         #присваиваем сгенирированный токен в переменную GITHUB_TOKEN
+$ export GITHUB_USERNAME=<имя_пользователя>     #присваиваем имя пользователя GitHub в переменную GITHUB_USERNAME
+$ export PACKAGE_MANAGER=<пакетный менеджер>   #указываем используемый пакетный менеджер
+$ export GPG_PACKAGE_NAME=<gpg2|gpg>          #указываем, в какой утилите будет создаваться ключ
 ```
 
-#### Проводим первоначальные настройки для соединения с репозиторием восьмой лабораторной работы
-```ShellSession
-$ git clone https://github.com/${GITHUB_USERNAME}/lab07 lab09 #Клонирование удаленного репозитория седьмой лабораторной в локальный каталог восьмой лабораторной
-$ cd lab09      #Меняем директорию на lab09
-$ git remote remove origin    #Отключаемся от удаленного репозитория седьмой лабораторной
-$ git remote add origin https://github.com/${GITHUB_USERNAME}/lab09   #Подключаемся к удаленному репозиторию восьмой лабораторной
+```sh
+# for *-nix system
+$ $PACKAGE_MANAGER install xclip                     #скачиваем утилиту xclip
+Updating Homebrew...
+==> Auto-updated Homebrew!
+....................................
+$ alias gsed=sed                                    #заменяем команду sed на gsed
+$ alias pbcopy='xclip -selection clipboard'        #заменяем команду pbcopy на xclip -selection clipboard
+$ alias pbpaste='xclip -selection clipboard -o'   #заменяем команду pbpaste на xclip -selection clipboard -o
 ```
-#### Внесение изменений в CMakeLists.txt
-```ShellSession
-#Внесение изменений в CMakeLists.txt
-$ gsed -i '/project(print)/a\
-set(PRINT_VERSION_STRING "v${PRINT_VERSION}")
-' CMakeLists.txt
-$ gsed -i '/project(print)/a\
-set(PRINT_VERSION \
-\${PRINT_VERSION_MAJOR}.\${PRINT_VERSION_MINOR}.\${PRINT_VERSION_PATCH}.\${PRINT_VERSION_TWEAK})
-' CMakeLists.txt
-$ gsed -i '/project(print)/a\
-set(PRINT_VERSION_TWEAK 0)
-' CMakeLists.txt
-$ gsed -i '/project(print)/a\
-set(PRINT_VERSION_PATCH 0)
-' CMakeLists.txt
-$ gsed -i '/project(print)/a\
-set(PRINT_VERSION_MINOR 1)
-' CMakeLists.txt
-$ gsed -i '/project(print)/a\
-set(PRINT_VERSION_MAJOR 0)
-' CMakeLists.txt
-```
-#### Работа с DESCRIPTION и ChangeLog.md
-```ShellSession
-$ touch DESCRIPTION && edit DESCRIPTION   #Создание DESCRIPTION и его редактирование
-$ touch ChangeLog.md    #Создание файла ChangeLog.md
-$ DATE=`date` cat > ChangeLog.md <<EOF    #Внесение изменений в файл Changelog.md
-* ${DATE} ${GITHUB_USERNAME} <${GITHUB_EMAIL}> 0.1.0.0
-- Initial RPM release
-EOF
-```
-#### Работа с CPackConfig.cmake 
-```ShellSession
-$ cat > CPackConfig.cmake <<EOF
-include(InstallRequiredSystemLibraries)
-EOF
-```
-#### Работа с CPackConfig.cmake
-```ShellSession
-#Внесение изменений в CPackConfig.cmake
-$ cat >> CPackConfig.cmake <<EOF
-set(CPACK_PACKAGE_CONTACT ${GITHUB_EMAIL})
-set(CPACK_PACKAGE_VERSION_MAJOR \${PRINT_VERSION_MAJOR})
-set(CPACK_PACKAGE_VERSION_MINOR \${PRINT_VERSION_MINOR})
-set(CPACK_PACKAGE_VERSION_PATCH \${PRINT_VERSION_PATCH})
-set(CPACK_PACKAGE_VERSION_TWEAK \${PRINT_VERSION_TWEAK})
-set(CPACK_PACKAGE_VERSION \${PRINT_VERSION})
-set(CPACK_PACKAGE_DESCRIPTION_FILE \${CMAKE_CURRENT_SOURCE_DIR}/DESCRIPTION)
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "static c++ library for printing")
-EOF
-```
-#### Работа с CPackConfig.cmake 
-```ShellSession
-#Внесение изменений в CPackConfig.cmake
-#Привязываем лицензию и README.md к Cpack
-$ cat >> CPackConfig.cmake <<EOF
 
-set(CPACK_RESOURCE_FILE_LICENSE \${CMAKE_CURRENT_SOURCE_DIR}/LICENSE)
-set(CPACK_RESOURCE_FILE_README \${CMAKE_CURRENT_SOURCE_DIR}/README.md)
-EOF
+```sh
+$ cd ${GITHUB_USERNAME}/workspace                #спускаемся в workspace
+$ pushd .                                       #добавляем в стек текущий каталог
+$ source scripts/activate                      #выполняем скрипт
+$ go get github.com/aktau/github-release      #скачивание и установка пакета Go, для работы с релизами Github
+go: downloading github.com/aktau/github-release v0.10.0
+go: downloading github.com/dustin/go-humanize v1.0.0
+go: downloading github.com/voxelbrain/goptions v0.0.0-20180630082107-58cddc247ea2
+go: downloading github.com/github-release/github-release v0.10.0
+go: downloading github.com/tomnomnom/linkheader v0.0.0-20180905144013-02ca5825eb80
+go: downloading github.com/kevinburke/rest v0.0.0-20210506044642-5611499aa33c
 ```
-#### Работа с CPackConfig.cmake
-```ShellSession
-#Внесение изменений в CPackConfig.cmake
-#Устанавливаем параметры для CPACK_RPM_PACKAGE
-$ cat >> CPackConfig.cmake <<EOF
-set(CPACK_RPM_PACKAGE_NAME "print-devel")   #Задание имени пакета
-set(CPACK_RPM_PACKAGE_LICENSE "MIT")    #Задаем CPACK_RPM_PACKAGE_LICENSE
-set(CPACK_RPM_PACKAGE_GROUP "print")    #Задаем CPACK_RPM_PACKAGE_GROUP
-set(CPACK_RPM_PACKAGE_URL "https://github.com/${GITHUB_USERNAME}/lab07")    #Ссылка пакета
-set(CPACK_RPM_CHANGELOG_FILE \${CMAKE_CURRENT_SOURCE_DIR}/ChangeLog.md)   #Делаем привязку ChangeLog.md с CHANGELOG_FILE пакета
-set(CPACK_RPM_PACKAGE_RELEASE 1)
-EOF
-```
-#### Работа с CPackConfig.cmake
-```ShellSession
-#Внесение изменений в CPackConfig.cmake
-#Устанавливаем параметры для CPACK_DEBIAN_PACKAGE
-$ cat >> CPackConfig.cmake <<EOF
-set(CPACK_DEBIAN_PACKAGE_NAME "libprint-dev")   #Задание имени пакета
-#Ссылка на страницу пакета
-set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "https://${GITHUB_USERNAME}.github.io/lab07")
-set(CPACK_DEBIAN_PACKAGE_PREDEPENDS "cmake >= 3.0")
-set(CPACK_DEBIAN_PACKAGE_RELEASE 1)
-EOF
-```
-#### Работа с CPackConfig.cmake 
-```ShellSession
-#Внесение изменений в CPackConfig.cmake
-$ cat >> CPackConfig.cmake <<EOF
 
-include(CPack)
-EOF
+```sh
+$ git clone https://github.com/${GITHUB_USERNAME}/lab08 projects/lab09   #клонируем репозиторий из lab08 в директорию projects/lab09
+$ cd projects/lab09                                                     #переходим директорию projects/lab09
+$ git remote remove origin                                            #удаляем старую ссылку репозитория
+$ git remote add origin https://github.com/${GITHUB_USERNAME}/lab09  #добавляем ссылку репозитория в управление репозиториями
 ```
-#### Работа с CMakeLists.txt
-```ShellSession
-#Внесение изменений в CMakeLists.txt
-$ cat >> CMakeLists.txt <<EOF
 
-include(CPackConfig.cmake)
-EOF
+```sh
+$ gsed -i -e 's/lab08/lab09/g' README.md                #поменяем в README.md все строки lab08 на lab09
 ```
-#### Работа с README.md
-```ShellSession
-$ gsed -i 's/lab07/lab09/g' README.md   #Внесение изменений в файл README.md
-```
-#### Выполняем команды для настройки локального репозитория для дальнейшей отправки в удаленный репозиторий восьмой лабораторной работы
-```ShellSession
-$ git add .     #Добавляем все отредактированные файлы в подтвержденные
-$ git commit -m"added cpack config"     #Создаем коммит с сообщением
-$ git push origin master    #Выгружаем локальный репозиторий в удаленный репозиторий восьмой лабораторной
-```
-#### Работа с Travis
-```ShellSession
-$ travis login --auto       #Авторизуемся своим GITHUB аккаунтом
-Successfully logged in as GolubDobra!
-$ travis enable           #Включаем репозиторий в Travis
-Detected repository as GolubDobra/lab04, is this correct? |yes| yes
-GolubDobra/lab04: enabled :)
-```
-#### Работа с CMake
-```ShellSession
-#-H. устанавливаем каталог в который сгенерируется файл CMakeLists.txt
-#-B_build указывает директорию для собираемых файлов
-$ cmake -H. -B_build
-#--build _build создает бинарное дерево проекта
-$ cmake --build _build
-$ cd _build     #Меняем директорию на _build
-#Создание директорий проекта при помощи TGZ,RPM,DEB,NSIS,DragNDrop
-$ cpack -G "TGZ"
-$ cpack -G "RPM"
-$ cpack -G "DEB"
-$ cpack -G "NSIS"
-$ cpack -G "DragNDrop"
-$ cd ..     #Выход из данной директории
-```
-#### Работа с CMake
-```ShellSession
-#-H. устанавливаем каталог в который сгенерируется файл CMakeLists.txt
-#-B_build указывает директорию для собираемых файлов
-#-D - заменяет команду set
-$ cmake -H. -B_build -DCPACK_GENERATOR="TGZ"
-#--build _build создает бинарное дерево проекта
-#--target указывает необходимые для обработки цели
-$ cmake --build _build --target package
-```
-#### Последние действия
-```ShellSession
-$ mkdir artifacts     #Создание каталога artifacts
-$ mv _build/*.tar.gz artifacts      #Перемещение проектов *.tar.gz из директории _build в artifacts
-$ tree artifacts      #Команда tree графически выводит в консоли структуру нашего проекта
-artifacts
-└── print-0.1.0.0-Darwin.tar.gz
 
-0 directories, 1 file
+```sh
+$ $PACKAGE_MANAGER install ${GPG_PACKAGE_NAME}         #устанавливаем программу GPG для шифрования информации и создания электронных цифровых подписей
+==> Downloading https://ghcr.io/v2/homebrew/core/gmp/manifests/6.2.1
+######################################################################## 100.0%
+==> Downloading ................................................................
+$ gpg --list-secret-keys --keyid-format LONG           #проверяем на наличие ранее созданных ключей
+gpg: создан каталог '/Users/user/.gnupg'
+gpg: создан щит с ключами '/Users/user/.gnupg/pubring.kbx'
+gpg: /Users/user/.gnupg/trustdb.gpg: создана таблица доверия
+$ gpg --full-generate-key                                 #гененрируем ключ
+gpg (GnuPG) 2.3.1; Copyright (C) 2021 Free Software Foundation, Inc.
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+Выберите тип ключа:
+   (1) RSA and RSA
+   (2) DSA and Elgamal
+   (3) DSA (sign only)
+   (4) RSA (sign only)
+   (9) ECC (sign and encrypt) *default*
+  (10) ECC (только для подписи)
+  (14) Existing key from card
+Ваш выбор? 1
+длина ключей RSA может быть от 1024 до 4096.
+Какой размер ключа Вам необходим? (3072) 1025
+Запрошенный размер ключа - 1025 бит
+округлен до 1056 бит
+Выберите срок действия ключа.
+         0 = не ограничен
+      <n>  = срок действия ключа - n дней
+      <n>w = срок действия ключа - n недель
+      <n>m = срок действия ключа - n месяцев
+      <n>y = срок действия ключа - n лет
+Срок действия ключа? (0) 5
+Ключ действителен до четверг,  3 июня 2021 г. 21:17:41 MSK
+Все верно? (y/N) y 
+GnuPG должен составить идентификатор пользователя для идентификации ключа.
+Ваше полное имя: Ivan
+Имя не должно быть короче 5 символов   #Обидно
+Ваше полное имя: Vanusha
+Адрес электронной почты: melihovivan936@gmail.com
+Примечание: for tutorial
+Вы выбрали следующий идентификатор пользователя:
+    "Vanusha (for tutorial) <melihovivan936@gmail.com>"
+
+Сменить (N)Имя, (C)Примечание, (E)Адрес; (O)Принять/(Q)Выход? O
+Необходимо получить много случайных чисел. Желательно, чтобы Вы
+в процессе генерации выполняли какие-то другие действия (печать
+на клавиатуре, движения мыши, обращения к дискам); это даст генератору
+случайных чисел больше возможностей получить достаточное количество энтропии.
+
+gpg: ключ #NUMBERKEY# помечен как абсолютно доверенный
+gpg: создан каталог '/Users/user/.gnupg/openpgp-revocs.d'
+gpg: сертификат отзыва записан в '/Users/user/.gnupg/openpgp-revocs.d/#KEY DIRECTORY#.rev'.
+открытый и секретный ключи созданы и подписаны.
+
+pub   rsa1056 2021-05-29 [SC] [   годен до: 2021-06-03]
+      #KEY DIRECTORY#
+uid                      Vanusha (for tutorial) <melihovivan936@gmail.com>
+sub   rsa1056 2021-05-29 [E] [   годен до: 2021-06-03]
+
+
+$ gpg --list-secret-keys --keyid-format LONG     #выводим в консоль сгенерированный ключ
+gpg: проверка таблицы доверия
+gpg: marginals needed: 3  completes needed: 1  trust model: pgp
+gpg: глубина: 0  достоверных:   1  подписанных:   0  доверие: 0-, 0q, 0n, 0m, 0f, 1u
+gpg: срок следующей проверки таблицы доверия 2021-06-03
+/Users/user/.gnupg/pubring.kbx
+------------------------------
+sec   rsa1056/#NUMBERKEY# 2021-05-29 [SC] [   годен до: 2021-06-03]
+      #KEY DIRECTORY#
+uid               [  абсолютно ] Vanusha (for tutorial) <melihovivan936@gmail.com>
+ssb   rsa1056/#2NUMBERKEY2# 2021-05-29 [E] [   годен до: 2021-06-03]
+
+$ GPG_KEY_ID=$(gpg --list-secret-keys --keyid-format LONG | grep ssb | tail -1 | awk '{print $2}' | awk -F'/' '{print $2}') # cоздаем переменной окружения с сохраненным в ней публичным ключом
+$ GPG_SEC_KEY_ID=$(gpg --list-secret-keys --keyid-format LONG | grep sec | tail -1 | awk '{print $2}' | awk -F'/' '{print $2}') #cоздаем переменной окружения с сохраненным в ней секретным ключом
+$ gpg --armor --export ${GPG_KEY_ID} | pbcopy  #выводим ключ в ASCII
+Error: Can't open display: (null)
+$ pbpaste                                    #копируем ключ в буфер
+Error: Can't open display: (null)
+$ open https://github.com/settings/keys         #открываем Github ключ
+$ git config user.signingkey ${GPG_SEC_KEY_ID} #добавляем секретный ключ в Github
+$ git config gpg.program gpg
+```
+
+```sh
+# Настраиваем скрипт для добавления сообщения к тегу
+$ test -r ~/.bash_profile && echo 'export GPG_TTY=$(tty)' >> ~/.bash_profile
+$ echo 'export GPG_TTY=$(tty)' >> ~/.profile
+```
+
+```sh
+$ cmake -H. -B_build -DCPACK_GENERATOR="TGZ"    #генерируем пакет с раширением .tar.gz
+$ cmake --build _build --target package        #запускаем сборку package
+```
+
+```sh
+$ travis login --auto         #авторизируемся на travis
+$ travis enable              #делаем проект доступным
+```
+
+```sh
+$ git tag -s v0.1.0.0                   #создаем тега с сообщением с информацией
+$ git tag -v v0.1.0.0                  #верифицируем тег
+$ git show v0.1.0.0                   #посмотрим изменения
+$ git push origin master --tags      #отправляем измения на Github
+```
+
+```sh
+$ github-release --version
+$ github-release info -u ${GITHUB_USERNAME} -r lab09
+$ github-release release \
+    --user ${GITHUB_USERNAME} \
+    --repo lab09 \
+    --tag v0.1.0.0 \
+    --name "libprint" \
+    --description "my first release"
+```
+
+```sh
+$ export PACKAGE_OS=`uname -s` PACKAGE_ARCH=`uname -m` 
+$ export PACKAGE_FILENAME=print-${PACKAGE_OS}-${PACKAGE_ARCH}.tar.gz
+$ github-release upload \
+    --user ${GITHUB_USERNAME} \
+    --repo lab09 \
+    --tag v0.1.0.0 \
+    --name "${PACKAGE_FILENAME}" \
+    --file _build/*.tar.gz
+```
+
+```sh
+$ github-release info -u ${GITHUB_USERNAME} -r lab09
+$ wget https://github.com/${GITHUB_USERNAME}/lab09/releases/download/v0.1.0.0/${PACKAGE_FILENAME}
+$ tar -ztf ${PACKAGE_FILENAME}
 ```
 
 ## Report
 
-```ShellSession
-$ cd ~/workspace/labs/
-$ export LAB_NUMBER=08
+```sh
+$ popd
+$ export LAB_NUMBER=09
 $ git clone https://github.com/tp-labs/lab${LAB_NUMBER} tasks/lab${LAB_NUMBER}
 $ mkdir reports/lab${LAB_NUMBER}
 $ cp tasks/lab${LAB_NUMBER}/README.md reports/lab${LAB_NUMBER}/REPORT.md
@@ -205,11 +210,12 @@ $ gistup -m "lab${LAB_NUMBER}"
 
 ## Links
 
-- [DMG](https://cmake.org/cmake/help/latest/module/CPackDMG.html)
-- [DEB](https://cmake.org/cmake/help/latest/module/CPackDeb.html)
-- [RPM](https://cmake.org/cmake/help/latest/module/CPackRPM.html)
-- [NSIS](https://cmake.org/cmake/help/latest/module/CPackNSIS.html)
+- [Create Release](https://help.github.com/articles/creating-releases/)
+- [Get GitHub Token](https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/)
+- [Signing Commits](https://help.github.com/articles/signing-commits-with-gpg/)
+- [Go Setup](http://www.golangbootcamp.com/book/get_setup)
+- [github-release](https://github.com/aktau/github-release)
 
 ```
-Copyright (c) 2017 Братья Вершинины
+Copyright (c) 2015-2021 The ISC Authors
 ```
