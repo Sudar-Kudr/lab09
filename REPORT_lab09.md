@@ -167,9 +167,9 @@ $ git push origin master --tags      #отправляем измения на G
 ```
 
 ```sh
-$ github-release --version
+$ github-release --version              #узнаем версию
 $ github-release info -u ${GITHUB_USERNAME} -r lab09
-$ github-release release \
+$ github-release release \              #создаем релиза
     --user ${GITHUB_USERNAME} \
     --repo lab09 \
     --tag v0.1.0.0 \
@@ -178,9 +178,10 @@ $ github-release release \
 ```
 
 ```sh
-$ export PACKAGE_OS=`uname -s` PACKAGE_ARCH=`uname -m` 
-$ export PACKAGE_FILENAME=print-${PACKAGE_OS}-${PACKAGE_ARCH}.tar.gz
-$ github-release upload \
+#Добавим артефакт с указанием ОС и архитектуры, на которых происходила компиляция библиотеки
+$ export PACKAGE_OS=`uname -s` PACKAGE_ARCH=`uname -m`        #
+$ export PACKAGE_FILENAME=print-${PACKAGE_OS}-${PACKAGE_ARCH}.tar.gz       #
+$ github-release upload \       #
     --user ${GITHUB_USERNAME} \
     --repo lab09 \
     --tag v0.1.0.0 \
@@ -189,21 +190,21 @@ $ github-release upload \
 ```
 
 ```sh
-$ github-release info -u ${GITHUB_USERNAME} -r lab09
-$ wget https://github.com/${GITHUB_USERNAME}/lab09/releases/download/v0.1.0.0/${PACKAGE_FILENAME}
-$ tar -ztf ${PACKAGE_FILENAME}
+$ github-release info -u ${GITHUB_USERNAME} -r lab09 
+$ wget https://github.com/${GITHUB_USERNAME}/lab09/releases/download/v0.1.0.0/${PACKAGE_FILENAME}  #скачаем артефакт
+$ tar -ztf ${PACKAGE_FILENAME}                                                                    #выводим на экран содержимого архива
 ```
 
 ## Report
 
 ```sh
-$ popd
-$ export LAB_NUMBER=09
-$ git clone https://github.com/tp-labs/lab${LAB_NUMBER} tasks/lab${LAB_NUMBER}
-$ mkdir reports/lab${LAB_NUMBER}
-$ cp tasks/lab${LAB_NUMBER}/README.md reports/lab${LAB_NUMBER}/REPORT.md
-$ cd reports/lab${LAB_NUMBER}
-$ edit REPORT.md
+$ popd                                                                           #удаляем из стека текущий каталог
+$ export LAB_NUMBER=09                                                          #присваиваем 09 в переменную LAB_NUMBER
+$ git clone https://github.com/tp-labs/lab${LAB_NUMBER} tasks/lab${LAB_NUMBER} #клонируем из ссылки в директорию (в нашем случае-tasks/lab09)
+$ mkdir reports/lab${LAB_NUMBER}                                              #создаем в директории reports папку (в нашем случае- lab09) 
+$ cp tasks/lab${LAB_NUMBER}/README.md reports/lab${LAB_NUMBER}/REPORT.md     #копируем из одной директории в другую
+$ cd reports/lab${LAB_NUMBER}                                               #спускаемся в директорию (в наше случае- lab09)
+$ edit REPORT.md                                                           #редактируем REPORT.md
 $ gistup -m "lab${LAB_NUMBER}"
 ```
 
